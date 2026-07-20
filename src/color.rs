@@ -1,5 +1,7 @@
 use crate::vec3::Vec3;
 use std::io::{self, Write};
+
+pub type Color = Vec3;
 pub fn write_color(stream: &mut impl Write, color: &Vec3) -> io::Result<()> {
     let r = color.x();
     let g = color.y();
