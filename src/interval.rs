@@ -35,4 +35,14 @@ impl Interval {
             max: INFINITY,
         }
     }
+
+    pub fn clamp(&self, x: f64) -> f64 {
+        if x > self.max {
+            return self.max;
+        }
+        if x < self.min {
+            return self.min;
+        }
+        x
+    }
 }

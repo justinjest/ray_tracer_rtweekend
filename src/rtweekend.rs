@@ -1,3 +1,4 @@
+pub use crate::camera::*;
 pub use crate::color::*;
 pub use crate::hittable::*;
 pub use crate::hittable_list::*;
@@ -5,11 +6,37 @@ pub use crate::interval::*;
 pub use crate::ray::*;
 pub use crate::sphere::*;
 pub use crate::vec3::*;
+pub use rand::prelude::*;
 pub use std::io;
 
 pub const INFINITY: f64 = f64::INFINITY;
-pub const PI: f64 = 3.1415926535897932385;
+pub const PI: f64 = std::f64::consts::PI;
 
 pub fn degrees_to_radians(degrees: f64) -> f64 {
     degrees * PI / 180.0
+}
+
+pub fn random_double() -> f64 {
+    let mut rng = rand::rng();
+    let x: f64 = rng.random();
+    x
+}
+
+pub fn random_between(min: f64, max: f64) -> f64 {
+    assert!(min < max);
+    let mut rng = rand::rng();
+    let x: f64 = rng.random();
+    min + (max - min) * x
+}
+
+pub fn random_vector() -> Vec3 {
+    Vec3::new(random_double(), random_double(), random_double())
+}
+
+pub fn random_vector_between(min: f64, max: f64) -> Vec3 {
+    Vec3::new(
+        random_between(min, max),
+        random_between(min, max),
+        random_between(min, max),
+    )
 }

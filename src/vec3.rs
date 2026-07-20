@@ -1,3 +1,4 @@
+use crate::rtweekend::*;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
 
 #[derive(Copy, Clone, Debug, Default)]
@@ -88,7 +89,7 @@ pub fn cross(lhs: &Vec3, rhs: &Vec3) -> Vec3 {
 }
 
 pub fn unit_vector(v: Vec3) -> Vec3 {
-    v.clone() / v.length()
+    v / v.length()
 }
 
 impl Mul for Vec3 {
@@ -148,11 +149,9 @@ impl Sub for &Vec3 {
 
 impl AddAssign for Vec3 {
     fn add_assign(&mut self, rhs: Vec3) {
-        Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        };
+        self.x = self.x + rhs.x;
+        self.y = self.y + rhs.y;
+        self.z = self.z + rhs.z;
     }
 }
 
@@ -171,8 +170,24 @@ impl DivAssign<f64> for Vec3 {
         self.z /= rhs;
     }
 }
+pub fn random_unit_vec() -> Vec3 {
+    loop {
+        let p = random_vector_between(-1.0, 1.0);
+        let lensq = p.length_squared();
+        if 10.0 * (10.0_f64).powf(-160.0) < lensq && lensq <= 1.0 {
+            return p / lensq.sqrt();
+        }
+    }
+}
 
-#[allow(unused)]
+pub fn random_on_hemisphere(normal: Vec3) -> Vec3 {
+    let on_unit_sphere = random_unit_vec();
+    if dot(&on_unit_sphere, &normal) > 0.0 {
+        return on_unit_sphere;
+    }
+    -on_unit_sphere
+}
+
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
@@ -188,7 +203,7 @@ impl Vec3 {
     }
 
     pub fn length(&self) -> f64 {
-        return (self.length_squared()).sqrt();
+        (self.length_squared()).sqrt()
     }
 
     pub fn length_squared(&self) -> f64 {

@@ -32,7 +32,7 @@ impl HittableList {
             ) {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
-                *rec = temp_rec.clone();
+                *rec = temp_rec;
             }
         }
         hit_anything
