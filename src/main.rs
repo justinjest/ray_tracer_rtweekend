@@ -1,30 +1,25 @@
 mod color;
+mod hittable;
+mod hittable_list;
+mod interval;
 mod ray;
+mod rtweekend;
+mod sphere;
 mod vec3;
 
-use crate::color::{write_color, Color};
-use crate::ray::Ray;
-use crate::vec3::*;
-use std::io;
+use crate::rtweekend::*;
 
-fn hit_sphere(center: &Point3, radius: f64, r: &Ray) -> f64 {
-    let oc = &(center - r.origin());
-    let a = r.direction().length_squared();
-    let h = dot(r.direction(), oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-    if discriminant < 0.0 {
-        return -1.0;
-    } else {
-        return (h - discriminant.sqrt()) / a;
-    }
-}
-
-fn ray_color(r: &Ray) -> Color {
-    let t = hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, r);
-    if t > 0.0 {
-        let n: Vec3 = unit_vector(r.at(t) - Vec3::new(0.0, 0.0, -1.0));
-        return 0.5 * Color::new(n.x() + 1.0, n.y() + 1.0, n.z() + 1.0);
+fn ray_color(r: &Ray, world: &HittableList) -> Color {
+    let mut rec: HitRecord = HitRecord::new();
+    if world.hit(
+        r,
+        Interval {
+            min: 0.0,
+            max: INFINITY,
+        },
+        &mut rec,
+    ) {
+        return 0.5 * (rec.normal + Color::new(1.0, 1.0, 1.0));
     }
 
     let unit_direction = unit_vector(r.direction().clone());
@@ -41,6 +36,13 @@ fn main() {
     if image_height < 1 {
         image_height = 1;
     }
+
+    // World settings
+
+    let mut world = HittableList::new();
+
+    world.add(Box::new(Sphere::new(Point3::new(0.0, 0.0, -1.0), 0.5)));
+    world.add(Box::new(Sphere::new(Point3::new(0.0, -100.5, -1.0), 100.0)));
 
     // Camera settings
     let focal_length = 1.0;
@@ -76,7 +78,7 @@ fn main() {
                 pixel00_loc.clone() + (i as f64 * pixel_delta_u) + (j as f64 * pixel_delta_v);
             let ray_direction = pixel_center - camera_center.clone();
             let r = Ray::new(camera_center.clone(), ray_direction);
-            let pixel_color = ray_color(&r);
+            let pixel_color = ray_color(&r, &world);
             // currently just ignoring error probably not great
             let _ = write_color(&mut io::stdout(), &pixel_color);
         }
