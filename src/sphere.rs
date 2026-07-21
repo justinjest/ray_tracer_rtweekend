@@ -1,17 +1,21 @@
-use crate::rtweekend::*;
+use crate::{aabb::AABB, rtweekend::*};
 
+#[derive(Clone)]
 pub struct Sphere {
     center: Point3,
     radius: f64,
     mat: Arc<dyn Material>,
+    aabb: AABB,
 }
 
 impl Sphere {
     pub fn new(center: Point3, radius: f64, mat: Arc<dyn Material>) -> Sphere {
+        let rvec = Vec3::new(radius, radius, radius);
         Sphere {
             center,
             radius: f64::max(0.0, radius),
             mat,
+            aabb: AABB::new_from_points(&(center - rvec), &(center + rvec)),
         }
     }
 }
@@ -43,5 +47,9 @@ impl Hittable for Sphere {
         rec.mat = self.mat.clone();
 
         true
+    }
+
+    fn bounding_box(&self) -> AABB {
+        self.aabb.clone()
     }
 }

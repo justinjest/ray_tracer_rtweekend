@@ -1,3 +1,5 @@
+mod aabb;
+mod bvh;
 mod camera;
 mod color;
 mod hittable;
@@ -77,11 +79,12 @@ fn main() {
         1.0,
         material_03,
     )));
+    world = HittableList::new_from_list(vec![Arc::new(BvhNode::new(world))]);
 
     let mut cam = Camera::new();
     cam.aspect_ratio = 16.0 / 9.0;
-    cam.image_width = 1200;
-    cam.samples_per_pixel = 500;
+    cam.image_width = 1366;
+    cam.samples_per_pixel = 100;
     cam.max_depth = 50;
     cam.vfov = 20.0;
     cam.look_from = Point3::new(13.0, 2.0, 3.0);

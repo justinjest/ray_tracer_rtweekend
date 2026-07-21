@@ -1,3 +1,5 @@
+pub use crate::aabb::*;
+pub use crate::bvh::*;
 pub use crate::camera::*;
 pub use crate::color::*;
 pub use crate::hittable::*;
@@ -29,6 +31,11 @@ pub fn random_between(min: f64, max: f64) -> f64 {
     let mut rng = rand::rng();
     let x: f64 = rng.random();
     min + (max - min) * x
+}
+
+pub fn random_int(min: usize, max: usize) -> usize {
+    let mut rng = rand::rng();
+    rng.random_range(min..max)
 }
 
 pub fn random_vector() -> Vec3 {

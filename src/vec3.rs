@@ -1,5 +1,5 @@
 use crate::rtweekend::*;
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Vec3 {
@@ -9,6 +9,19 @@ pub struct Vec3 {
 }
 
 pub type Point3 = Vec3;
+
+impl Index<usize> for Vec3 {
+    type Output = f64;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        match index {
+            0 => &self.x,
+            1 => &self.y,
+            2 => &self.z,
+            _ => panic!("Index out of bounds for Vec3!"),
+        }
+    }
+}
 
 impl Neg for Vec3 {
     type Output = Self;
@@ -234,6 +247,7 @@ impl Vec3 {
             z: random_double(),
         }
     }
+
     pub fn x(&self) -> f64 {
         self.x
     }
