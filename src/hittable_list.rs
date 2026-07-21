@@ -1,7 +1,7 @@
 use crate::rtweekend::*;
 
 pub struct HittableList {
-    pub objects: Vec<Box<dyn Hittable>>,
+    pub objects: Vec<Arc<dyn Hittable>>,
 }
 
 impl HittableList {
@@ -9,7 +9,7 @@ impl HittableList {
         HittableList { objects: vec![] }
     }
 
-    pub fn add(&mut self, object: Box<dyn Hittable>) {
+    pub fn add(&mut self, object: Arc<dyn Hittable>) {
         self.objects.push(object);
     }
 
@@ -32,7 +32,7 @@ impl HittableList {
             ) {
                 hit_anything = true;
                 closest_so_far = temp_rec.t;
-                *rec = temp_rec;
+                *rec = temp_rec.clone();
             }
         }
         hit_anything

@@ -3,11 +3,13 @@ pub use crate::color::*;
 pub use crate::hittable::*;
 pub use crate::hittable_list::*;
 pub use crate::interval::*;
+pub use crate::material::*;
 pub use crate::ray::*;
 pub use crate::sphere::*;
 pub use crate::vec3::*;
 pub use rand::prelude::*;
 pub use std::io;
+pub use std::sync::Arc;
 
 pub const INFINITY: f64 = f64::INFINITY;
 pub const PI: f64 = std::f64::consts::PI;

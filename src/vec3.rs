@@ -12,9 +12,19 @@ pub type Point3 = Vec3;
 
 impl Neg for Vec3 {
     type Output = Self;
-
     fn neg(self) -> Self::Output {
         Self {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
+        }
+    }
+}
+
+impl Neg for &Vec3 {
+    type Output = Vec3;
+    fn neg(self) -> Self::Output {
+        Vec3 {
             x: -self.x,
             y: -self.y,
             z: -self.z,
@@ -188,9 +198,41 @@ pub fn random_on_hemisphere(normal: Vec3) -> Vec3 {
     -on_unit_sphere
 }
 
+pub fn reflect(v: &Vec3, n: &Vec3) -> Vec3 {
+    v - &(2.0 * dot(v, n) * n)
+}
+
+pub fn refract(uv: &Vec3, n: &Vec3, etai_over_etat: f64) -> Vec3 {
+    let mut cos_theta = dot(&-uv, n);
+    if cos_theta > 1.0 {
+        cos_theta = 1.0;
+    }
+
+    let r_out_perp = etai_over_etat * (uv + &(cos_theta * n));
+    let r_out_para = -((1.0 - r_out_perp.length_squared()).abs()).sqrt() * n;
+    r_out_perp + r_out_para
+}
+
+pub fn random_in_unit_disk() -> Vec3 {
+    loop {
+        let p = Vec3::new(random_between(-1.0, 1.0), random_between(-1.0, 1.0), 0.0);
+        if p.length_squared() < 1.0 {
+            return p;
+        }
+    }
+}
+
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
+    }
+
+    pub fn random() -> Vec3 {
+        Vec3 {
+            x: random_double(),
+            y: random_double(),
+            z: random_double(),
+        }
     }
     pub fn x(&self) -> f64 {
         self.x
@@ -208,5 +250,10 @@ impl Vec3 {
 
     pub fn length_squared(&self) -> f64 {
         self.x.powf(2.0) + self.y.powf(2.0) + self.z.powf(2.0)
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let s = 10.0_f64 * 10.0_f64.powf(-8.0);
+        self.x < s && self.y < s && self.z < s
     }
 }

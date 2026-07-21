@@ -1,6 +1,6 @@
-use crate::Point3;
-use crate::Vec3;
+use crate::rtweekend::*;
 
+#[derive(Copy, Clone)]
 pub struct Ray {
     orig: Point3,
     dir: Vec3,
@@ -8,10 +8,7 @@ pub struct Ray {
 
 impl Ray {
     pub fn new(orig: Vec3, dir: Vec3) -> Self {
-        Ray {
-            orig: orig,
-            dir: dir,
-        }
+        Ray { orig, dir }
     }
 
     pub fn origin(&self) -> &Point3 {

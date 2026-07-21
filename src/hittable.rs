@@ -1,9 +1,11 @@
 use crate::rtweekend::*;
+use std::sync::Arc;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
+    pub mat: Arc<dyn Material>,
     pub t: f64,
     pub front_face: bool,
 }
@@ -13,6 +15,7 @@ impl HitRecord {
         HitRecord {
             p: Point3::new(0.0, 0.0, 0.0),
             normal: Vec3::new(0.0, 0.0, 0.0),
+            mat: Arc::new(NoMaterial),
             t: 0.0,
             front_face: false,
         }
@@ -28,6 +31,6 @@ impl HitRecord {
     }
 }
 
-pub trait Hittable {
+pub trait Hittable: Send + Sync {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
 }
