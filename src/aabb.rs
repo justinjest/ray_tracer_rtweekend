@@ -16,6 +16,15 @@ impl AABB {
         }
     }
 
+    pub fn empty() -> AABB {
+        let empty = Interval { min: 0.0, max: 0.0 };
+        AABB {
+            x: empty,
+            y: empty,
+            z: empty,
+        }
+    }
+
     pub fn new_from_box(box0: &AABB, box1: &AABB) -> AABB {
         let x = Interval::tight_expansion(&box0.x, &box1.x);
         let y = Interval::tight_expansion(&box0.y, &box1.y);
@@ -81,5 +90,24 @@ impl AABB {
             }
         }
         true
+    }
+
+    pub fn longest_axis(&self) -> u64 {
+        let x = self.x.size();
+        let y = self.y.size();
+        let z = self.z.size();
+        if x > y {
+            if x > z {
+                return 0;
+            } else {
+                return 2;
+            }
+        } else {
+            if y > z {
+                return 1;
+            } else {
+                return 2;
+            }
+        }
     }
 }

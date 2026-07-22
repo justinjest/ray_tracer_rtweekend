@@ -27,19 +27,21 @@ impl Material for NoMaterial {
 }
 
 pub struct Lambertian {
-    albedo: Color,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Color) -> Lambertian {
-        Lambertian { albedo }
+    pub fn new(albedo: impl Into<Arc<dyn Texture>>) -> Lambertian {
+        Lambertian {
+            albedo: albedo.into(),
+        }
     }
 }
 
 impl Material for Lambertian {
     fn scatter(
         &self,
-        _r: &Ray,
+        r: &Ray,
         rec: &HitRecord,
         attenuation: &mut Color,
         scattered: &mut Ray,
@@ -50,9 +52,9 @@ impl Material for Lambertian {
             scatter_direction = rec.normal;
         }
 
-        let s = &Ray::new(rec.p, scatter_direction);
+        let s = &Ray::new_with_time(rec.p, scatter_direction, r.time());
         *scattered = *s;
-        let a = &self.albedo;
+        let a = &self.albedo.value(rec.u, rec.v, &rec.p);
         *attenuation = *a;
         true
     }
@@ -82,7 +84,7 @@ impl Material for Metal {
     ) -> bool {
         let mut reflected = reflect(r.direction(), &rec.normal);
         reflected = unit_vector(reflected) + (self.fuzz * random_unit_vec());
-        let s = Ray::new(rec.p, reflected);
+        let s = Ray::new_with_time(rec.p, reflected, r.time());
         let a = self.albedo;
         *scattered = s;
         *attenuation = a;
@@ -134,7 +136,7 @@ impl Material for Dielectric {
             refract(&unit_direction, &rec.normal, ri)
         };
 
-        let s = Ray::new(rec.p, direction);
+        let s = Ray::new_with_time(rec.p, direction, r.time());
         *scattered = s;
         true
     }

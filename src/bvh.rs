@@ -9,7 +9,13 @@ pub struct BvhNode {
 
 impl BvhNode {
     fn new_from_slice(objects: &mut [Arc<dyn Hittable>], start: usize, end: usize) -> Self {
-        let axis = random_int(0, 2);
+        let mut bbox = AABB::empty();
+
+        for obj in start..end {
+            bbox = AABB::new_from_box(&bbox, &objects[obj].bounding_box());
+        }
+
+        let axis = bbox.longest_axis();
 
         let comparater = match axis {
             0 => box_x_compare,

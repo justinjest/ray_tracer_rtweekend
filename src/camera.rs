@@ -36,9 +36,9 @@ impl Camera {
             vfov: 90.0,
             look_from: Point3::new(0.0, 0.0, 0.0),
             look_at: Point3::new(0.0, 0.0, 0.0),
-            v_up: Vec3::new(0.0, 0.0, 0.0),
+            v_up: Vec3::new(0.0, 1.0, 0.0),
             defocus_angle: 0.0,
-            focus_dist: 0.0,
+            focus_dist: 10.0,
             image_height: 0,
             pixel_sample_scale: 0.0,
             center: Point3::new(0.0, 0.0, 0.0),
@@ -57,6 +57,7 @@ impl Camera {
         let cam = &*self;
 
         let num_threads: u64 = thread::available_parallelism().map_or(4, |n| n.get() as u64);
+
         let rows_per_thread = (self.image_height + num_threads - 1) / num_threads;
 
         let mut image_data =
@@ -68,21 +69,27 @@ impl Camera {
             for (chunk_idx, chunk) in chunks.enumerate() {
                 s.spawn(move || {
                     let start_j = chunk_idx as u64 * rows_per_thread;
+
                     for local_j in 0..rows_per_thread {
                         let j = start_j + local_j;
+
                         if j >= cam.image_height {
                             break;
                         }
+
                         eprintln!("Working on line {} out of {}", j, start_j + rows_per_thread);
 
                         for i in 0..cam.image_width {
                             let mut pixel_color = Color::new(0.0, 0.0, 0.0);
+
                             for _ in 0..cam.samples_per_pixel {
                                 let r = cam.get_ray(i, j as u64);
+
                                 pixel_color += cam.ray_color(&r, cam.max_depth, world);
                             }
 
                             let idx = (local_j * cam.image_width + i) as usize;
+
                             chunk[idx] = cam.pixel_sample_scale * pixel_color;
                         }
                     }
@@ -148,8 +155,9 @@ impl Camera {
             self.defocus_disk_sample()
         };
         let ray_direction = pixel_sample - ray_origin;
+        let ray_time = random_double();
 
-        Ray::new(ray_origin, ray_direction)
+        Ray::new_with_time(ray_origin, ray_direction, ray_time)
     }
 
     fn defocus_disk_sample(&self) -> Point3 {

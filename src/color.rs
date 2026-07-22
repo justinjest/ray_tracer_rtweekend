@@ -10,6 +10,12 @@ pub fn linear_to_gamma(linear_component: f64) -> f64 {
     linear_component.sqrt()
 }
 
+impl From<(f64, f64, f64)> for Color {
+    fn from((r, g, b): (f64, f64, f64)) -> Self {
+        Color::new(r, g, b)
+    }
+}
+
 pub fn write_color(stream: &mut impl Write, color: &Color) -> io::Result<()> {
     let mut r = color.x();
     let mut g = color.y();

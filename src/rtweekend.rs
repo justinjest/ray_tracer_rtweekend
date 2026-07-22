@@ -8,6 +8,7 @@ pub use crate::interval::*;
 pub use crate::material::*;
 pub use crate::ray::*;
 pub use crate::sphere::*;
+pub use crate::texture::*;
 pub use crate::vec3::*;
 pub use rand::prelude::*;
 pub use std::io;
