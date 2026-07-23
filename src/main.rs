@@ -10,7 +10,6 @@ mod material;
 mod perlin;
 mod quad;
 mod ray;
-mod rayon;
 mod rtw_image;
 mod rtweekend;
 mod sphere;
@@ -595,7 +594,7 @@ fn earth() {
 }
 
 fn main() {
-    match 19 {
+    match 9 {
         1 => bouncing_spheres(),
         2 => checkered_spheres(),
         3 => earth(),
