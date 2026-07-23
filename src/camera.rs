@@ -7,6 +7,7 @@ pub struct Camera {
     pub image_width: u64,
     pub samples_per_pixel: u64,
     pub max_depth: u64,
+    pub background: Color,
     pub vfov: f64,
     pub look_from: Point3,
     pub look_at: Point3,
@@ -33,6 +34,7 @@ impl Camera {
             image_width: 100,
             samples_per_pixel: 10,
             max_depth: 10,
+            background: Color::new(0.7, 0.8, 1.0), // a kind of light blue
             vfov: 90.0,
             look_from: Point3::new(0.0, 0.0, 0.0),
             look_at: Point3::new(0.0, 0.0, 0.0),
@@ -52,6 +54,7 @@ impl Camera {
             defocus_disk_v: Vec3::new(0.0, 0.0, 0.0),
         }
     }
+
     pub fn render(&mut self, world: &HittableList) {
         self.initalize();
         let cam = &*self;
@@ -175,17 +178,20 @@ impl Camera {
         }
         let mut rec = HitRecord::new();
 
-        if world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
-            let mut scattered = Ray::new(Vec3::new(0.0, 0.0, 0.0), Point3::new(0.0, 0.0, 0.0));
-            let mut attenuation = Color::new(0.0, 0.0, 0.0);
-            if rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
-                return attenuation * self.ray_color(&scattered, depth - 1, world);
-            }
-            return Color::new(0.0, 0.0, 0.0);
+        if !world.hit(r, Interval::new(0.001, INFINITY), &mut rec) {
+            return self.background;
         }
 
-        let unit_direction = unit_vector(*r.direction());
-        let a = 0.5 * (unit_direction.y() + 1.0);
-        (1.0 - a) * Color::new(1.0, 1.0, 1.0) + a * Color::new(0.5, 0.7, 1.0)
+        let mut scattered = Ray::new(Vec3::new(0.0, 0.0, 0.0), Point3::new(0.0, 0.0, 0.0));
+        let mut attenuation = Color::new(0.0, 0.0, 0.0);
+        let color_from_emission = rec.mat.emited(rec.u, rec.v, &rec.p);
+
+        if !rec.mat.scatter(r, &rec, &mut attenuation, &mut scattered) {
+            return color_from_emission;
+        }
+
+        let color = attenuation * self.ray_color(&scattered, depth - 1, world);
+
+        return color_from_emission + color;
     }
 }

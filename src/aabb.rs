@@ -1,4 +1,5 @@
 use crate::rtweekend::*;
+use std::ops::Add;
 
 #[derive(Copy, Clone)]
 pub struct AABB {
@@ -9,11 +10,13 @@ pub struct AABB {
 
 impl AABB {
     pub fn new(x: &Interval, y: &Interval, z: &Interval) -> AABB {
-        AABB {
+        let mut aabb = AABB {
             x: *x,
             y: *y,
             z: *z,
-        }
+        };
+        aabb.pad_to_minimus();
+        aabb
     }
 
     pub fn empty() -> AABB {
@@ -33,7 +36,7 @@ impl AABB {
     }
 
     pub fn new_from_points(a: &Point3, b: &Point3) -> AABB {
-        AABB {
+        let mut aabb = AABB {
             x: Interval {
                 min: f64::min(a.x(), b.x()),
                 max: f64::max(a.x(), b.x()),
@@ -46,6 +49,21 @@ impl AABB {
                 min: f64::min(a.z(), b.z()),
                 max: f64::max(a.z(), b.z()),
             },
+        };
+        aabb.pad_to_minimus();
+        aabb
+    }
+
+    fn pad_to_minimus(&mut self) {
+        let delta = 0.0001;
+        if self.x.size() < delta {
+            self.x = self.x.expand(delta)
+        }
+        if self.y.size() < delta {
+            self.y = self.y.expand(delta)
+        }
+        if self.z.size() < delta {
+            self.z = self.z.expand(delta)
         }
     }
 
@@ -109,5 +127,23 @@ impl AABB {
                 return 2;
             }
         }
+    }
+}
+
+impl Add<Vec3> for &AABB {
+    type Output = AABB;
+    fn add(self, rhs: Vec3) -> AABB {
+        AABB::new(
+            &(self.x + rhs.x()),
+            &(self.y + rhs.y()),
+            &(self.z + rhs.z()),
+        )
+    }
+}
+
+impl Add<&AABB> for Vec3 {
+    type Output = AABB;
+    fn add(self, rhs: &AABB) -> AABB {
+        rhs + self
     }
 }

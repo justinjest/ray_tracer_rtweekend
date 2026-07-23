@@ -1,6 +1,7 @@
 use crate::rtweekend::*;
+use std::ops::Add;
 
-#[derive(Copy, Clone, Default)]
+#[derive(Copy, Clone)]
 pub struct Interval {
     pub min: f64,
     pub max: f64,
@@ -58,5 +59,22 @@ impl Interval {
         let min = self.min - padding;
         let max = self.max + padding;
         Interval { min, max }
+    }
+}
+
+impl Add<f64> for Interval {
+    type Output = Interval;
+    fn add(self, rhs: f64) -> Self::Output {
+        Interval {
+            min: self.min + rhs,
+            max: self.max + rhs,
+        }
+    }
+}
+
+impl Add<Interval> for f64 {
+    type Output = Interval;
+    fn add(self, rhs: Interval) -> Self::Output {
+        rhs + self
     }
 }

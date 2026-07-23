@@ -18,14 +18,18 @@ impl HittableList {
     }
 
     pub fn new_from_list(list: Vec<Arc<dyn Hittable>>) -> HittableList {
-        HittableList {
-            objects: list,
+        let mut list_obj = HittableList {
+            objects: vec![],
             bbox: AABB {
                 x: Interval::new(0.0, 0.0),
                 y: Interval::new(0.0, 0.0),
                 z: Interval::new(0.0, 0.0),
             },
+        };
+        for object in list {
+            list_obj.add(object);
         }
+        list_obj
     }
 
     pub fn add(&mut self, object: Arc<dyn Hittable>) {
@@ -40,10 +44,10 @@ impl HittableList {
 
 impl Hittable for HittableList {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
-        let mut temp_rec = HitRecord::new();
         let mut hit_anything = false;
         let mut closest_so_far = ray_t.max;
         for object in &self.objects {
+            let mut temp_rec = HitRecord::new();
             if object.hit(
                 r,
                 Interval {

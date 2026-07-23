@@ -7,19 +7,19 @@ pub trait Texture: Send + Sync {
 
 #[derive(Copy, Clone)]
 pub struct SolidColor {
-    u: f64,
-    v: f64,
+    _u: f64,
+    _v: f64,
     albedo: Color,
-    p: Point3,
+    _p: Point3,
 }
 
 impl SolidColor {
     pub fn new(color: impl Into<Color>) -> Self {
         Self {
-            u: 0.0,
-            v: 0.0,
+            _u: 0.0,
+            _v: 0.0,
             albedo: color.into(),
-            p: Point3::new(0.0, 0.0, 0.0),
+            _p: Point3::new(0.0, 0.0, 0.0),
         }
     }
 }
@@ -105,8 +105,8 @@ impl ImageTexture {
 }
 
 impl Texture for ImageTexture {
-    fn value(&self, u: f64, v: f64, p: &Point3) -> Color {
-        if self.image.height() == 0 {
+    fn value(&self, u: f64, v: f64, _p: &Point3) -> Color {
+        if self.image.height() <= 0 {
             return Color::new(0.0, 1.0, 1.0);
         }
 
@@ -116,5 +116,33 @@ impl Texture for ImageTexture {
         let i = (new_u * (self.image.width() - 1) as f64) as u32;
         let j = (new_v * (self.image.height() - 1) as f64) as u32;
         self.image.pixel_data(i, j)
+    }
+}
+
+#[derive(Clone)]
+pub struct NoiseTexture {
+    noise: Perlin,
+    scale: f64,
+}
+
+impl NoiseTexture {
+    pub fn new(scale: f64) -> NoiseTexture {
+        NoiseTexture {
+            noise: Perlin::new(),
+            scale,
+        }
+    }
+}
+
+impl From<NoiseTexture> for Arc<dyn Texture> {
+    fn from(tex: NoiseTexture) -> Self {
+        Arc::new(tex)
+    }
+}
+
+impl Texture for NoiseTexture {
+    fn value(&self, _u: f64, _v: f64, p: &Point3) -> Color {
+        Color::new(0.5, 0.5, 0.5)
+            * (1.0 + (self.scale * p.z() + 10.0 * self.noise.turbulance(p, 7)).sin())
     }
 }

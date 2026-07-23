@@ -10,6 +10,10 @@ pub trait Material: Send + Sync {
     ) -> bool {
         false
     }
+
+    fn emited(&self, _u: f64, _v: f64, _p: &Point3) -> Color {
+        Color::new(0.0, 0.0, 0.0)
+    }
 }
 
 pub struct NoMaterial;
@@ -61,14 +65,14 @@ impl Material for Lambertian {
 }
 
 pub struct Metal {
-    albedo: Color,
+    albedo: Arc<dyn Texture>,
     fuzz: f64,
 }
 
 impl Metal {
-    pub fn new(albedo: Color, fuzz: f64) -> Metal {
+    pub fn new(albedo: impl Into<Arc<dyn Texture>>, fuzz: f64) -> Metal {
         Metal {
-            albedo,
+            albedo: albedo.into(),
             fuzz: if fuzz < 1.0 { fuzz } else { 1.0 },
         }
     }
@@ -85,20 +89,24 @@ impl Material for Metal {
         let mut reflected = reflect(r.direction(), &rec.normal);
         reflected = unit_vector(reflected) + (self.fuzz * random_unit_vec());
         let s = Ray::new_with_time(rec.p, reflected, r.time());
-        let a = self.albedo;
+        let a = &self.albedo.value(rec.u, rec.v, &rec.p);
         *scattered = s;
-        *attenuation = a;
+        *attenuation = *a;
         dot(scattered.direction(), &rec.normal) > 0.0
     }
 }
 
 pub struct Dielectric {
+    albedo: Arc<dyn Texture>,
     refraction_index: f64,
 }
 
 impl Dielectric {
-    pub fn new(refraction_index: f64) -> Dielectric {
-        Dielectric { refraction_index }
+    pub fn new(albedo: impl Into<Arc<dyn Texture>>, refraction_index: f64) -> Dielectric {
+        Dielectric {
+            albedo: albedo.into(),
+            refraction_index,
+        }
     }
 
     fn reflectance(&self, cosine: f64, refraction_index: f64) -> f64 {
@@ -115,8 +123,8 @@ impl Material for Dielectric {
         attenuation: &mut Color,
         scattered: &mut Ray,
     ) -> bool {
-        let a = Color::new(1.0, 1.0, 1.0);
-        *attenuation = a;
+        let a = &self.albedo.value(rec.u, rec.v, &rec.p);
+        *attenuation = *a;
 
         let ri = if rec.front_face {
             1.0 / self.refraction_index
@@ -138,6 +146,46 @@ impl Material for Dielectric {
 
         let s = Ray::new_with_time(rec.p, direction, r.time());
         *scattered = s;
+        true
+    }
+}
+
+pub struct DiffuseLight {
+    tex: Arc<dyn Texture>,
+}
+
+impl DiffuseLight {
+    pub fn new(tex: impl Into<Arc<dyn Texture>>) -> Self {
+        DiffuseLight { tex: tex.into() }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn emited(&self, u: f64, v: f64, p: &Point3) -> Color {
+        self.tex.value(u, v, p)
+    }
+}
+
+pub struct Isotropic {
+    tex: Arc<dyn Texture>,
+}
+
+impl Isotropic {
+    pub fn new(tex: impl Into<Arc<dyn Texture>>) -> Self {
+        Isotropic { tex: tex.into() }
+    }
+}
+
+impl Material for Isotropic {
+    fn scatter(
+        &self,
+        r: &Ray,
+        rec: &HitRecord,
+        attenuation: &mut Color,
+        scattered: &mut Ray,
+    ) -> bool {
+        *scattered = Ray::new_with_time(rec.p, random_unit_vec(), r.time());
+        *attenuation = self.tex.value(rec.u, rec.v, &rec.p);
         true
     }
 }

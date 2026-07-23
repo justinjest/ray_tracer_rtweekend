@@ -1,5 +1,5 @@
 use crate::rtweekend::*;
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Neg, Sub};
 
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Vec3 {
@@ -18,6 +18,17 @@ impl Index<usize> for Vec3 {
             0 => &self.x,
             1 => &self.y,
             2 => &self.z,
+            _ => panic!("Index out of bounds for Vec3!"),
+        }
+    }
+}
+
+impl IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        match index {
+            0 => &mut self.x,
+            1 => &mut self.y,
+            2 => &mut self.z,
             _ => panic!("Index out of bounds for Vec3!"),
         }
     }
@@ -186,6 +197,14 @@ impl MulAssign<f64> for Vec3 {
     }
 }
 
+impl MulAssign<f64> for &mut Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
+        self.x *= rhs;
+        self.y *= rhs;
+        self.z *= rhs;
+    }
+}
+
 impl DivAssign<f64> for Vec3 {
     fn div_assign(&mut self, rhs: f64) {
         self.x /= rhs;
@@ -238,6 +257,14 @@ pub fn random_in_unit_disk() -> Vec3 {
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { x, y, z }
+    }
+
+    pub fn empty() -> Self {
+        Self {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
     }
 
     pub fn random() -> Vec3 {

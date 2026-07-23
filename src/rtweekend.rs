@@ -2,10 +2,13 @@ pub use crate::aabb::*;
 pub use crate::bvh::*;
 pub use crate::camera::*;
 pub use crate::color::*;
+pub use crate::constant_medium::*;
 pub use crate::hittable::*;
 pub use crate::hittable_list::*;
 pub use crate::interval::*;
 pub use crate::material::*;
+pub use crate::perlin::*;
+pub use crate::quad::*;
 pub use crate::ray::*;
 pub use crate::sphere::*;
 pub use crate::texture::*;
@@ -22,9 +25,7 @@ pub fn degrees_to_radians(degrees: f64) -> f64 {
 }
 
 pub fn random_double() -> f64 {
-    let mut rng = rand::rng();
-    let x: f64 = rng.random();
-    x
+    rand::rng().random()
 }
 
 pub fn random_between(min: f64, max: f64) -> f64 {
