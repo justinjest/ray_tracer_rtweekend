@@ -21,6 +21,17 @@ pub fn write_color(stream: &mut impl Write, color: &Color) -> io::Result<()> {
     let mut g = color.y();
     let mut b = color.z();
 
+    // removes NaN errors
+    if r != r {
+        r = 0.0;
+    }
+    if g != g {
+        g = 0.0;
+    }
+    if b != b {
+        b = 0.0;
+    }
+
     // Transform into correct color space
     r = linear_to_gamma(r);
     g = linear_to_gamma(g);

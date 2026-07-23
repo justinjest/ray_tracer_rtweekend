@@ -1,3 +1,4 @@
+use crate::material::Isotropic;
 use crate::rtweekend::*;
 
 pub struct ConstantMedium {
@@ -10,9 +11,9 @@ impl ConstantMedium {
     pub fn new(boundry: Arc<dyn Hittable>, density: f64, tex: Arc<dyn Texture>) -> Self {
         let neg_inv_density = -1.0 / density;
         ConstantMedium {
-            boundry,
             neg_inv_density,
             phase_function: Arc::new(Isotropic::new(tex)),
+            boundry,
         }
     }
 }
@@ -35,7 +36,7 @@ impl Hittable for ConstantMedium {
         if rec1.t < ray_t.min {
             rec1.t = ray_t.min;
         }
-        if rec2.t < ray_t.max {
+        if rec2.t > ray_t.max {
             rec2.t = ray_t.max;
         }
 
@@ -49,7 +50,7 @@ impl Hittable for ConstantMedium {
 
         let ray_length = r.direction().length();
         let distance_within_boundry = (rec2.t - rec1.t) * ray_length;
-        let hit_distance = self.neg_inv_density * random_double().log10();
+        let hit_distance = self.neg_inv_density * random_double().ln();
 
         if hit_distance > distance_within_boundry {
             return false;
@@ -57,7 +58,7 @@ impl Hittable for ConstantMedium {
 
         rec.t = rec1.t + hit_distance / ray_length;
         rec.p = r.at(rec.t);
-        rec.normal = Vec3::new(3.0, 0.0, 0.0); // no reason
+        rec.normal = Vec3::new(1.0, 0.0, 0.0); // no reason
         rec.front_face = true; // no reason
         rec.mat = self.phase_function.clone();
 

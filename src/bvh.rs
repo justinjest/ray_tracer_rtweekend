@@ -80,7 +80,8 @@ impl Hittable for BvhNode {
         }
 
         let hit_left = self.left.hit(r, ray_t, rec);
-        let hit_right = self.right.hit(r, ray_t, rec);
+        let tmp = if hit_left { rec.t } else { ray_t.max };
+        let hit_right = self.right.hit(r, Interval::new(ray_t.min, tmp), rec);
 
         hit_left || hit_right
     }

@@ -1,5 +1,5 @@
 use crate::rtweekend::*;
-use std::thread;
+use rayon::prelude::*;
 
 #[derive(Copy, Clone, Debug)]
 pub struct Camera {
@@ -59,46 +59,28 @@ impl Camera {
         self.initalize();
         let cam = &*self;
 
-        let num_threads: u64 = thread::available_parallelism().map_or(4, |n| n.get() as u64);
+        let width: usize = self.image_width as usize;
+        let height: usize = self.image_height as usize;
 
-        let rows_per_thread = (self.image_height + num_threads - 1) / num_threads;
+        let mut image_data = vec![Color::default(); height * width];
 
-        let mut image_data =
-            vec![Color::default(); (self.image_width * self.image_height) as usize];
+        image_data
+            .par_chunks_mut(width)
+            .enumerate()
+            .for_each(|(j, scanline)| {
+                eprintln!("Scanlines remaining {}", height - j);
 
-        thread::scope(|s| {
-            let chunks = image_data.chunks_mut((rows_per_thread * self.image_width) as usize);
+                for i in 0..self.image_width {
+                    let mut pixel_color = Color::new(0.0, 0.0, 0.0);
 
-            for (chunk_idx, chunk) in chunks.enumerate() {
-                s.spawn(move || {
-                    let start_j = chunk_idx as u64 * rows_per_thread;
-
-                    for local_j in 0..rows_per_thread {
-                        let j = start_j + local_j;
-
-                        if j >= cam.image_height {
-                            break;
-                        }
-
-                        eprintln!("Working on line {} out of {}", j, start_j + rows_per_thread);
-
-                        for i in 0..cam.image_width {
-                            let mut pixel_color = Color::new(0.0, 0.0, 0.0);
-
-                            for _ in 0..cam.samples_per_pixel {
-                                let r = cam.get_ray(i, j as u64);
-
-                                pixel_color += cam.ray_color(&r, cam.max_depth, world);
-                            }
-
-                            let idx = (local_j * cam.image_width + i) as usize;
-
-                            chunk[idx] = cam.pixel_sample_scale * pixel_color;
-                        }
+                    for _ in 0..cam.samples_per_pixel {
+                        let r = self.get_ray(i, j as u64);
+                        pixel_color += self.ray_color(&r, self.max_depth, world);
                     }
-                });
-            }
-        });
+
+                    scanline[i as usize] = self.pixel_sample_scale * pixel_color;
+                }
+            });
 
         println!("P3");
         println!("{} {}", self.image_width, self.image_height);

@@ -7,12 +7,11 @@ pub use crate::hittable::*;
 pub use crate::hittable_list::*;
 pub use crate::interval::*;
 pub use crate::material::*;
-pub use crate::perlin::*;
-pub use crate::quad::*;
 pub use crate::ray::*;
 pub use crate::sphere::*;
 pub use crate::texture::*;
 pub use crate::vec3::*;
+pub use crate::{perlin::*, quad::*};
 pub use rand::prelude::*;
 pub use std::io;
 pub use std::sync::Arc;
@@ -38,10 +37,6 @@ pub fn random_between(min: f64, max: f64) -> f64 {
 pub fn random_int(min: usize, max: usize) -> usize {
     let mut rng = rand::rng();
     rng.random_range(min..max)
-}
-
-pub fn random_vector() -> Vec3 {
-    Vec3::new(random_double(), random_double(), random_double())
 }
 
 pub fn random_vector_between(min: f64, max: f64) -> Vec3 {
