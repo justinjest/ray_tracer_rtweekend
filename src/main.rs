@@ -10,6 +10,7 @@ mod material;
 mod perlin;
 mod quad;
 mod ray;
+mod rotation;
 mod rtw_image;
 mod rtweekend;
 mod sphere;
@@ -216,7 +217,7 @@ fn cornell_smoke() {
         white.clone(),
     );
 
-    let r_box1 = Arc::new(RotateY::new(box1, 15.0));
+    let r_box1 = rotate(box1, Vec3::new(0.0, 15.0, 0.0));
     let r_t_box1 = Arc::new(Translate::new(r_box1, Vec3::new(265.0, 0.0, 295.0)));
     world.add(Arc::new(ConstantMedium::new(
         r_t_box1,
@@ -230,7 +231,7 @@ fn cornell_smoke() {
         white.clone(),
     );
 
-    let r_box2 = Arc::new(RotateY::new(box2, -18.0));
+    let r_box2 = rotate(box2, Vec3::new(0.0, -18.0, 0.0));
     let r_t_box2 = Arc::new(Translate::new(r_box2, Vec3::new(130.0, 0.0, 65.0)));
     world.add(Arc::new(ConstantMedium::new(
         r_t_box2,
