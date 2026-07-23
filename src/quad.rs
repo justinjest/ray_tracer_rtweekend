@@ -6,7 +6,7 @@ pub struct Quad {
     v: Vec3,
     w: Vec3,
     mat: Arc<dyn Material>,
-    bbox: AABB,
+    bbox: Aabb,
     normal: Vec3,
     d: f64,
 }
@@ -21,7 +21,7 @@ impl Quad {
             v,
             w: n / dot(&n, &n),
             mat,
-            bbox: AABB::empty(),
+            bbox: Aabb::empty(),
             normal,
             d: dot(&normal, &q),
         };
@@ -30,9 +30,9 @@ impl Quad {
     }
 
     fn set_bounding_box(&mut self) {
-        let bbox_diagonal1 = AABB::new_from_points(&self.q, &(self.q + self.u + self.v));
-        let bbox_diagonal2 = AABB::new_from_points(&(self.q + self.u), &(self.q + self.v));
-        self.bbox = AABB::new_from_box(&bbox_diagonal1, &bbox_diagonal2);
+        let bbox_diagonal1 = Aabb::new_from_points(&self.q, &(self.q + self.u + self.v));
+        let bbox_diagonal2 = Aabb::new_from_points(&(self.q + self.u), &(self.q + self.v));
+        self.bbox = Aabb::new_from_box(&bbox_diagonal1, &bbox_diagonal2);
     }
 
     fn is_interior(a: f64, b: f64, rec: &mut HitRecord) -> bool {
@@ -78,7 +78,7 @@ impl Hittable for Quad {
         true
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }

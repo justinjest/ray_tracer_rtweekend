@@ -4,15 +4,15 @@ use std::cmp::Ordering;
 pub struct BvhNode {
     left: Arc<dyn Hittable>,
     right: Arc<dyn Hittable>,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl BvhNode {
     fn new_from_slice(objects: &mut [Arc<dyn Hittable>], start: usize, end: usize) -> Self {
-        let mut bbox = AABB::empty();
+        let mut bbox = Aabb::empty();
 
-        for obj in start..end {
-            bbox = AABB::new_from_box(&bbox, &objects[obj].bounding_box());
+        for obj in objects.into_iter() {
+            bbox = Aabb::new_from_box(&bbox, &obj.bounding_box());
         }
 
         let axis = bbox.longest_axis();
@@ -42,7 +42,7 @@ impl BvhNode {
             (left, right)
         };
 
-        let bbox = AABB::new_from_box(&left.bounding_box(), &right.bounding_box());
+        let bbox = Aabb::new_from_box(&left.bounding_box(), &right.bounding_box());
         BvhNode { left, right, bbox }
     }
 
@@ -86,7 +86,7 @@ impl Hittable for BvhNode {
         hit_left || hit_right
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }

@@ -38,7 +38,7 @@ impl HitRecord {
 pub struct Translate {
     object: Arc<dyn Hittable>,
     offset: Vec3,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl Translate {
@@ -64,7 +64,7 @@ impl Hittable for Translate {
         true
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }
@@ -73,7 +73,7 @@ pub struct RotateY {
     object: Arc<dyn Hittable>,
     sin_theta: f64,
     cos_theta: f64,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl RotateY {
@@ -112,7 +112,7 @@ impl RotateY {
             object,
             sin_theta,
             cos_theta,
-            bbox: AABB::new_from_points(&min, &max),
+            bbox: Aabb::new_from_points(&min, &max),
         }
     }
 }
@@ -152,12 +152,12 @@ impl Hittable for RotateY {
         true
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }
 
 pub trait Hittable: Send + Sync {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool;
-    fn bounding_box(&self) -> AABB;
+    fn bounding_box(&self) -> Aabb;
 }

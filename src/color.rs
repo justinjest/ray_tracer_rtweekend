@@ -22,13 +22,13 @@ pub fn write_color(stream: &mut impl Write, color: &Color) -> io::Result<()> {
     let mut b = color.z();
 
     // removes NaN errors
-    if r != r {
+    if r.is_nan() {
         r = 0.0;
     }
-    if g != g {
+    if g.is_nan() {
         g = 0.0;
     }
-    if b != b {
+    if b.is_nan() {
         b = 0.0;
     }
 

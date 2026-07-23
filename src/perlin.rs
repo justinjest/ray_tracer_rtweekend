@@ -42,9 +42,9 @@ impl Perlin {
         let k = p.z().floor() as i64;
         let mut c = [[[Vec3::empty(); 2]; 2]; 2];
 
-        for di in 0..2 as usize {
-            for dj in 0..2 as usize {
-                for dk in 0..2 as usize {
+        for di in 0..2_usize {
+            for dj in 0..2_usize {
+                for dk in 0..2_usize {
                     c[di][dj][dk] = self.rand_vec[(self.perm_x[((i + di as i64) & 255) as usize]
                         ^ self.perm_y[((j + dj as i64) & 255) as usize]
                         ^ self.perm_z[((k + dk as i64) & 255) as usize])
@@ -52,7 +52,7 @@ impl Perlin {
                 }
             }
         }
-        return Self::perlin_interp(c, u, v, w);
+        Self::perlin_interp(c, u, v, w)
     }
 
     fn perlin_generate_perm(p: &mut [u64]) {
@@ -65,9 +65,7 @@ impl Perlin {
     fn permute(p: &mut [u64], n: usize) {
         for i in (1..n).rev() {
             let target = random_int(0, i);
-            let tmp = p[i];
-            p[i] = p[target];
-            p[target] = tmp;
+            p.swap(i, target);
         }
     }
 
@@ -106,7 +104,7 @@ impl Perlin {
         for _ in 0..depth {
             accum += weight * self.noise(&temp_p);
             weight *= 0.5;
-            temp_p = 2.0 * temp_p.clone();
+            temp_p = 2.0 * temp_p;
         }
 
         accum.abs()

@@ -105,7 +105,7 @@ impl Camera {
 
         let theta = degrees_to_radians(self.vfov);
         let h = (theta / 2.0).tan();
-        let viewport_height: f64 = 2.0 * h * self.focus_dist as f64;
+        let viewport_height: f64 = 2.0 * h * self.focus_dist;
         let viewport_width: f64 =
             viewport_height * (self.image_width) as f64 / self.image_height as f64;
 
@@ -174,6 +174,6 @@ impl Camera {
 
         let color = attenuation * self.ray_color(&scattered, depth - 1, world);
 
-        return color_from_emission + color;
+        color_from_emission + color
     }
 }

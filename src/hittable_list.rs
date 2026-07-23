@@ -2,14 +2,14 @@ use crate::rtweekend::*;
 
 pub struct HittableList {
     pub objects: Vec<Arc<dyn Hittable>>,
-    bbox: AABB,
+    bbox: Aabb,
 }
 
 impl HittableList {
     pub fn new() -> HittableList {
         HittableList {
             objects: vec![],
-            bbox: AABB {
+            bbox: Aabb {
                 x: Interval::new(0.0, 0.0),
                 y: Interval::new(0.0, 0.0),
                 z: Interval::new(0.0, 0.0),
@@ -20,7 +20,7 @@ impl HittableList {
     pub fn new_from_list(list: Vec<Arc<dyn Hittable>>) -> HittableList {
         let mut list_obj = HittableList {
             objects: vec![],
-            bbox: AABB {
+            bbox: Aabb {
                 x: Interval::new(0.0, 0.0),
                 y: Interval::new(0.0, 0.0),
                 z: Interval::new(0.0, 0.0),
@@ -34,7 +34,7 @@ impl HittableList {
 
     pub fn add(&mut self, object: Arc<dyn Hittable>) {
         self.objects.push(object.clone());
-        self.bbox = AABB::new_from_box(&self.bbox, &object.bounding_box());
+        self.bbox = Aabb::new_from_box(&self.bbox, &object.bounding_box());
     }
 }
 
@@ -60,7 +60,7 @@ impl Hittable for HittableList {
         hit_anything
     }
 
-    fn bounding_box(&self) -> AABB {
+    fn bounding_box(&self) -> Aabb {
         self.bbox
     }
 }

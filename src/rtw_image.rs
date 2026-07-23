@@ -16,14 +16,13 @@ impl RtwImage {
         ];
 
         for path in &search_paths {
-            if Path::new(path).exists() {
-                if let Ok(reader) = ImageReader::open(path) {
-                    if let Ok(decoded) = reader.decode() {
-                        return Self {
-                            data: Some(decoded.into_rgb8()),
-                        };
-                    }
-                }
+            if Path::new(path).exists()
+                && let Ok(reader) = ImageReader::open(path)
+                && let Ok(decoded) = reader.decode()
+            {
+                return Self {
+                    data: Some(decoded.into_rgb8()),
+                };
             }
         }
 
@@ -46,8 +45,8 @@ impl RtwImage {
             return magenta;
         };
 
-        x = x.clamp(0, img.width().saturating_sub(1).into());
-        y = y.clamp(0, img.height().saturating_sub(1).into());
+        x = x.clamp(0, img.width().saturating_sub(1));
+        y = y.clamp(0, img.height().saturating_sub(1));
 
         let pixel = img.get_pixel(x, y);
         let color_scale = 1.0 / 255.0;
