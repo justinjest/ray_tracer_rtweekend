@@ -11,7 +11,7 @@ impl BvhNode {
     fn new_from_slice(objects: &mut [Arc<dyn Hittable>], start: usize, end: usize) -> Self {
         let mut bbox = Aabb::empty();
 
-        for obj in objects.into_iter() {
+        for obj in objects.iter_mut() {
             bbox = Aabb::new_from_box(&bbox, &obj.bounding_box());
         }
 

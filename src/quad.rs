@@ -52,7 +52,7 @@ impl Hittable for Quad {
     fn hit(&self, r: &Ray, ray_t: Interval, rec: &mut HitRecord) -> bool {
         let denom = dot(&self.normal, r.direction());
 
-        if denom.abs() < 10.0 * (10.0 as f64).powf(-18.0) {
+        if denom.abs() < 10.0 * (10.0_f64).powf(-18.0) {
             return false;
         }
 

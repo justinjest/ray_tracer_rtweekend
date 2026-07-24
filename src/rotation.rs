@@ -1,11 +1,13 @@
 use crate::rtweekend::*;
 
 pub fn rotate(object: Arc<dyn Hittable>, rotation: Vec3) -> Arc<dyn Hittable> {
-    RotateZ::new(
-        RotateY::new(RotateX::new(object, rotation.x()).object(), rotation.y()).object(),
+    Arc::new(RotateZ::new(
+        Arc::new(RotateY::new(
+            Arc::new(RotateX::new(object, rotation.x())),
+            rotation.y(),
+        )),
         rotation.z(),
-    )
-    .object
+    ))
 }
 
 struct RotateZ {
@@ -53,10 +55,6 @@ impl RotateZ {
             cos_theta,
             bbox: Aabb::new_from_points(&min, &max),
         }
-    }
-
-    pub fn object(&self) -> Arc<dyn Hittable> {
-        self.object.clone()
     }
 }
 
@@ -108,10 +106,6 @@ struct RotateX {
 }
 
 impl RotateX {
-    pub fn object(&self) -> Arc<dyn Hittable> {
-        self.object.clone()
-    }
-
     pub fn new(object: Arc<dyn Hittable>, angle: f64) -> Self {
         let radians = degrees_to_radians(angle);
         let sin_theta = radians.sin();
@@ -237,10 +231,6 @@ impl RotateY {
             cos_theta,
             bbox: Aabb::new_from_points(&min, &max),
         }
-    }
-
-    pub fn object(&self) -> Arc<dyn Hittable> {
-        self.object.clone()
     }
 }
 

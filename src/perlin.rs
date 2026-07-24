@@ -42,10 +42,10 @@ impl Perlin {
         let k = p.z().floor() as i64;
         let mut c = [[[Vec3::empty(); 2]; 2]; 2];
 
-        for di in 0..2_usize {
-            for dj in 0..2_usize {
-                for dk in 0..2_usize {
-                    c[di][dj][dk] = self.rand_vec[(self.perm_x[((i + di as i64) & 255) as usize]
+        for (di, layer) in c.iter_mut().enumerate() {
+            for (dj, row) in layer.iter_mut().enumerate() {
+                for (dk, item) in row.iter_mut().enumerate() {
+                    *item = self.rand_vec[(self.perm_x[((i + di as i64) & 255) as usize]
                         ^ self.perm_y[((j + dj as i64) & 255) as usize]
                         ^ self.perm_z[((k + dk as i64) & 255) as usize])
                         as usize];
@@ -56,8 +56,8 @@ impl Perlin {
     }
 
     fn perlin_generate_perm(p: &mut [u64]) {
-        for i in 0..Self::POINT_COUNT {
-            p[i] = i as u64;
+        for (i, item) in p.iter_mut().enumerate().take(Self::POINT_COUNT) {
+            *item = i as u64;
         }
         Self::permute(p, Self::POINT_COUNT);
     }
@@ -75,9 +75,9 @@ impl Perlin {
         let ww = Self::hermitian(w);
         let mut accum = 0.0;
 
-        for i in 0..2 {
-            for j in 0..2 {
-                for k in 0..2 {
+        for (i, layer) in c.clone().iter_mut().enumerate() {
+            for (j, row) in layer.iter_mut().enumerate() {
+                for (k, item) in row.iter_mut().enumerate() {
                     let i_f = i as f64;
                     let j_f = j as f64;
                     let k_f = k as f64;
@@ -85,7 +85,7 @@ impl Perlin {
                     accum += (i_f * uu + (1.0 - i_f) * (1.0 - uu))
                         * (j_f * vv + (1.0 - j_f) * (1.0 - vv))
                         * (k_f * ww + (1.0 - k_f) * (1.0 - ww))
-                        * dot(&c[i][j][k], &weight);
+                        * dot(item, &weight);
                 }
             }
         }

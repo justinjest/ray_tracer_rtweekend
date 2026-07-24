@@ -1,5 +1,6 @@
 use crate::rtweekend::*;
 use rayon::prelude::*;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[derive(Copy, Clone, Debug)]
 pub struct Camera {
@@ -63,13 +64,15 @@ impl Camera {
         let height: usize = self.image_height as usize;
 
         let mut image_data = vec![Color::default(); height * width];
-
+        let q: AtomicUsize = AtomicUsize::new(0);
         image_data
             .par_chunks_mut(width)
             .enumerate()
             .for_each(|(j, scanline)| {
-                eprintln!("Scanlines remaining {}", height - j);
-
+                eprintln!(
+                    "Scanlines remaining {}",
+                    height - q.fetch_add(1, Ordering::Relaxed)
+                );
                 for i in 0..self.image_width {
                     let mut pixel_color = Color::new(0.0, 0.0, 0.0);
 
